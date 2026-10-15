@@ -1,0 +1,29 @@
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - deploy/app.yaml
+configMapGenerator:
+  - name: dev-server
+    namespace: coder
+    files:
+      - server.mjs
+  - name: dev-web
+    namespace: coder
+    files:
+      - index.html=web/index.html
+      - dev.css=web/dev.css
+      - dev.js=web/dev.js
+  - name: dev-fonts
+    namespace: coder
+    files:
+      - display.woff2=web/fonts/display.woff2
+      - display-ext.woff2=web/fonts/display-ext.woff2
+      - text.woff2=web/fonts/text.woff2
+      - text-ext.woff2=web/fonts/text-ext.woff2
+  - name: coder-workspace-gallery
+    namespace: coder-workspaces
+    options:
+      disableNameSuffixHash: true
+    files:
+      - server.py=workspace/agent.py

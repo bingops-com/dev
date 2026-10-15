@@ -1,0 +1,30 @@
+---
+name: Dev application
+'on':
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - run: npm test
+      - run: npm run test:agent
+      - run: npm run test:browser
+        env:
+          CHROMIUM_BIN: /usr/bin/google-chrome
+      - name: Render deployment
+        run: kubectl kustomize . > /tmp/dev-render.yaml
+      - name: Build standalone container
+        run: docker build -t lab-dev:test .

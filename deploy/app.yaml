@@ -1,0 +1,60 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dev
+  namespace: coder
+spec:
+  replicas: 1
+  selector:
+    matchLabels: {app.kubernetes.io/name: dev}
+  template:
+    metadata:
+      labels: {app.kubernetes.io/name: dev}
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        seccompProfile: {type: RuntimeDefault}
+      containers:
+        - name: dev
+          image: docker.io/node:24-bookworm-slim@sha256:d6aa754f16b3197301076f047b5def2f02ea1dbbc2ca920407d46d7ec7f87b20
+          command: [node, /app/server.mjs]
+          env:
+            - {name: DEV_WEB_ROOT, value: /app/web}
+          ports:
+            - {name: http, containerPort: 8080}
+          readinessProbe:
+            httpGet: {path: /healthz, port: http}
+          livenessProbe:
+            httpGet: {path: /healthz, port: http}
+          resources:
+            requests: {cpu: 25m, memory: 48Mi}
+            limits: {cpu: 250m, memory: 128Mi}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: {drop: [ALL]}
+          volumeMounts:
+            - {name: app, mountPath: /app, readOnly: true}
+            - {name: web, mountPath: /app/web, readOnly: true}
+            - {name: fonts, mountPath: /app/web/fonts, readOnly: true}
+      volumes:
+        - name: app
+          configMap: {name: dev-server}
+        - name: web
+          configMap: {name: dev-web}
+        - name: fonts
+          configMap: {name: dev-fonts}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dev
+  namespace: coder
+spec:
+  selector: {app.kubernetes.io/name: dev}
+  ports:
+    - {name: http, port: 80, targetPort: http}
