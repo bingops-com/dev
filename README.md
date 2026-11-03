@@ -20,7 +20,7 @@ Le serveur attend un accès au service Coder du cluster. `createGateway({upstrea
 
 - `server.mjs` : shell statique, proxy des alias HTTP/WebSocket et inventaire via l’application Coder 4175. Les projets restent privés et l’authentification est déléguée à Coder/Authentik.
 - `web/` : HTML/CSS/JS et polices locales, sans service tiers ni framework à compiler.
-- `workspace/agent.py` : galerie et inventaire, uniquement sur `127.0.0.1:4175` dans le workspace. Démarrer avec `python3 workspace/agent.py --root /home/coder/projects --port 4175` dans une session retenue.
+- `workspace/agent.py` : galerie et inventaire, uniquement sur `127.0.0.1:4175` dans le workspace. Sur un ancien workspace sans supervision au démarrage, lancer `bash workspace/start.sh` : une session Screen détachée conserve le service et relance son worker après un arrêt. Le démarrage répété est sans effet si l’inventaire répond déjà.
 - `kustomization.yaml`, `deploy/` : Deployment `dev`, Service `dev` et ConfigMaps dans `coder`, plus le code de l’agent dans `coder-workspaces`. Les namespaces et le workspace appartiennent à Coder, pas à cette application.
 - `Dockerfile` : image autonome reproductible, construite et vérifiée en CI.
 
@@ -42,7 +42,7 @@ Les sockets non HTTP, les processus hors projets, les listeners TLS et ceux lié
 
 1. Reconstituer DNS, issuer TLS, Coder et les namespaces selon le [runbook LabOps](https://github.com/bingops-com/labops/tree/master/apps/workloads/coder).
 2. Réconcilier `dev-labprod` ; les ConfigMaps et le Pod sont reconstruits depuis Git de manière idempotente.
-3. Démarrer/adopter l’agent du workspace, puis les serveurs des projets.
+3. Adopter le template Coder avec le montage et la supervision de l’agent. Pour rétablir un workspace existant sans le redémarrer, exécuter `bash workspace/start.sh`, puis démarrer les serveurs des projets. Vérifier `curl --fail http://127.0.0.1:4175/api/dev/status`. Le helper ne change ni Coder ni Kubernetes et ne démarre aucun projet. Sa session détachée survit à la fermeture du terminal et relance le worker sous deux secondes ; un arrêt complet du workspace nécessite le démarrage prévu par le template ou un nouvel appel au helper. L’état de verrouillage dans `~/.local/state/dev-workspace` est généré et ne nécessite aucune restauration.
 4. Vérifier `/healthz`, le TLS de `dev.lab.bingo`, le 401 de `/api/workspace` sans session et la redirection d’un alias vers Coder. Après connexion, démarrer/arrêter un serveur et vérifier son apparition/disparition, puis ouvrir sa page et un serveur WebSocket.
 
 Aucun nouvel input sensible n’est nécessaire. Les comptes Coder/Authentik, l’issuer DNS-01 et les sauvegardes du home ont leurs procédures de récupération dans LabOps. Les tests CI utilisent exclusivement des données factices. Les licences des polices copiées de la famille lab.bingo figurent dans `web/fonts/LICENSE`.
