@@ -13,7 +13,7 @@ function icon(name) { const svg = document.createElementNS('http://www.w3.org/20
 function node(tag, className, text) { const element = document.createElement(tag); if (className) element.className = className; if (text !== undefined) element.textContent = text; return element; }
 function toast(message) { clearTimeout(toastTimer); $('toast').textContent = message; $('toast').hidden = false; toastTimer = setTimeout(() => $('toast').hidden = true, 2400); }
 async function copy(text) { try { await navigator.clipboard.writeText(text); toast('Adresse copiée'); } catch { toast('Copie indisponible : ouvrez le lien pour récupérer son adresse.'); } }
-function appUrl(port) { return `https://${port}.dev.lab.bingo/`; }
+function appUrl(port) { return `https://${port}.code.lab.bingo/`; }
 function favorite(port) { favorites.has(port) ? favorites.delete(port) : favorites.add(port); try { localStorage.setItem('dev.favorites.v1', JSON.stringify([...favorites])); } catch {} render(); }
 function portCard(port) {
   const card = node('article','port-card'); card.dataset.port = port.port;
@@ -25,7 +25,7 @@ function portCard(port) {
   const pin = node('button','star-button'); pin.type = 'button'; pin.setAttribute('aria-label',`${favorites.has(port.port) ? 'Retirer' : 'Ajouter'} ${port.project} ${port.port} ${favorites.has(port.port) ? 'des' : 'aux'} favoris`); pin.setAttribute('aria-pressed',String(favorites.has(port.port))); pin.append(icon('star')); pin.onclick = () => favorite(port.port);
   head.append(badge,status,pin);
   const body = node('div','port-card-content'); body.append(node('h3','',port.project),node('span','runtime',`${port.runtime} · HTTP`));
-  const address = node('div','port-address'); address.append(node('strong','',String(port.port)),node('span','','.dev.lab.bingo'));
+  const address = node('div','port-address'); address.append(node('strong','',String(port.port)),node('span','','.code.lab.bingo'));
   const actions = node('div','port-card-actions'); const open = node('a','button','Ouvrir'); open.href = appUrl(port.port); open.target = '_blank'; open.rel = 'noopener'; open.setAttribute('aria-label',`Ouvrir ${port.project}, port ${port.port}`); open.append(icon('arrow'));
   const clip = node('button','icon-button'); clip.type='button'; clip.setAttribute('aria-label',`Copier l’adresse du port ${port.port}`); clip.append(icon('copy')); clip.onclick = () => copy(appUrl(port.port)); actions.append(open,clip); body.append(address,actions); card.append(head,body); return card;
 }
