@@ -7,10 +7,10 @@ import { pathToFileURL } from 'node:url';
 
 const defaultPortal = process.env.DEV_WEB_ROOT ? pathToFileURL(resolve(process.env.DEV_WEB_ROOT, 'index.html')) : new URL('./web/index.html', import.meta.url);
 export function routeHost(host = '') {
-  const match = /^([1-9]\d*)\.code\.lab\.bingo$/.exec(host.toLowerCase());
+  const match = /^([1-9]\d*)\.dev\.lab\.bingo$/.exec(host.toLowerCase());
   if (!match) return null;
   const port = Number(match[1]);
-  return port >= 1024 && port <= 65535 ? { port, host: `${port}.code.lab.bingo` } : null;
+  return port >= 1024 && port <= 65535 ? { port, host: `${port}.dev.lab.bingo` } : null;
 }
 
 // Never pass the SSO identity or its session cookies to project applications.
@@ -54,9 +54,9 @@ export function createGateway({ agentPort = 4175, portal = defaultPortal, owner 
   }
   const authorized = req => req.headers['x-authentik-username'] === owner;
   const server = http.createServer(async (req, res) => {
-    if (req.url === '/healthz' && req.headers.host === 'code.lab.bingo') { res.writeHead(200); res.end('ok'); return; }
+    if (req.url === '/healthz' && req.headers.host === 'dev.lab.bingo') { res.writeHead(200); res.end('ok'); return; }
     if (!authorized(req)) { res.writeHead(401, {'cache-control':'no-store'}); res.end('Authentication required'); return; }
-    const dashboard = req.headers.host === 'code.lab.bingo';
+    const dashboard = req.headers.host === 'dev.lab.bingo';
     if (dashboard) {
       if (!['GET', 'HEAD'].includes(req.method)) { res.writeHead(405); res.end(); return; }
       const path = req.url.split('?')[0];

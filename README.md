@@ -1,7 +1,7 @@
 # Dev · lab.bingo
 
 Le portail privé de la VM de développement : projets, serveurs HTTP détectés,
-aperçus `PORT.code.lab.bingo`, favoris, recherche, thèmes et galerie d’images.
+aperçus `PORT.dev.lab.bingo`, favoris, recherche, thèmes et galerie d’images.
 La migration native est préparée localement ; le déploiement Kubernetes/Coder
 historique reste actif jusqu’à la bascule décrite dans LabOps.
 

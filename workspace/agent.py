@@ -95,7 +95,7 @@ def probe_web_port(record):
         try:
             connection.request("HEAD", "/", headers={"Host": "localhost", "Connection": "close"})
             response = connection.getresponse()
-            return {**record, "status": "warning" if response.status >= 500 else "ready", "http_status": response.status, "url": f"https://{record['port']}.code.lab.bingo/"}
+            return {**record, "status": "warning" if response.status >= 500 else "ready", "http_status": response.status, "url": f"https://{record['port']}.dev.lab.bingo/"}
         except (OSError, http.client.HTTPException):
             pass
         finally:
@@ -119,7 +119,7 @@ HTML = r'''<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name
 /* Palette commune Portal / Slots / Games. */
 :root{color-scheme:light;--ground:#f3f6fc;--surface:#fff;--ink:#111b38;--soft:#626d87;--line:#dce3f0;--tint:#eaf0fe;--link:#1443d6}body{background:var(--ground);color:var(--ink);font-family:system-ui,sans-serif}body>header{background:#1443d6;color:white;border:0;min-height:72px}header strong{font-weight:700}header span{color:#d1dcff}body>header a{color:#d1dcff}a{color:var(--link)}button{background:var(--surface);color:var(--ink);border-color:var(--line);border-radius:9px;min-height:44px}button:hover{background:var(--tint)}.image{background:var(--surface);border-color:var(--line);border-radius:12px}.image img{background:repeating-conic-gradient(#e8edfa 0 25%,#f5f7fc 0 50%) 0/18px 18px}.image span{font-weight:550}#status{color:var(--soft)}dialog{background:var(--surface);color:var(--ink);border-color:var(--line);border-radius:14px;box-shadow:0 20px 80px #08154755}dialog header{background:var(--surface);border-color:var(--line)}dialog footer{color:var(--soft)}nav button{font-size:12px}.folders button{color:var(--soft)}
 @media(prefers-color-scheme:dark){:root{color-scheme:dark;--ground:#060f2b;--surface:#0c1a45;--ink:#eaefff;--soft:#a3b3df;--line:#20327a;--tint:#16296a;--link:#9db6ff}.image img{background:repeating-conic-gradient(#13234e 0 25%,#1b2b58 0 50%) 0/18px 18px}}
-</style></head><body><header><strong>▧ Images du workspace</strong><span>LECTURE SEULE · PROJETS</span><a href="https://code.lab.bingo/">Dev ↗</a></header><main><nav id="breadcrumbs"></nav><div id="folders" class="folders"></div><p id="status" role="status"></p><p id="error" role="alert"></p><section id="images" aria-label="Images du dossier"></section></main><dialog id="viewer"><header><strong id="name"></strong><button id="close" aria-label="Fermer">×</button></header><img id="large" alt=""><footer><span>Fichier original · aucun changement possible</span><a id="original" target="_blank" rel="noopener">Ouvrir l’original ↗</a></footer></dialog><script>
+</style></head><body><header><strong>▧ Images du workspace</strong><span>LECTURE SEULE · PROJETS</span><a href="https://dev.lab.bingo/">Dev ↗</a></header><main><nav id="breadcrumbs"></nav><div id="folders" class="folders"></div><p id="status" role="status"></p><p id="error" role="alert"></p><section id="images" aria-label="Images du dossier"></section></main><dialog id="viewer"><header><strong id="name"></strong><button id="close" aria-label="Fermer">×</button></header><img id="large" alt=""><footer><span>Fichier original · aucun changement possible</span><a id="original" target="_blank" rel="noopener">Ouvrir l’original ↗</a></footer></dialog><script>
 const $=id=>document.getElementById(id);let controller;
 function button(text,action){const b=document.createElement('button');b.textContent=text;b.onclick=action;return b}
 function go(path){location.hash=encodeURIComponent(path)}
@@ -154,7 +154,7 @@ def make_handler(root):
             parsed = urlsplit(self.path)
             if parsed.path == "/_dev/return":
                 self.send_response(HTTPStatus.SEE_OTHER)
-                self.send_header("Location", "https://code.lab.bingo/")
+                self.send_header("Location", "https://dev.lab.bingo/")
                 self.send_header("Cache-Control", "no-store")
                 self.send_header("Content-Length", "0")
                 self.end_headers()
