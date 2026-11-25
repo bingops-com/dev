@@ -24,7 +24,7 @@ async function fixture(t, projectHandler = (req,res) => res.end('project')) {
 
 test('accepts only short, nonprivileged port aliases', () => {
   assert.equal(routeHost('4173.dev.lab.bingo').port,4173);
-  for (const host of ['22.dev.lab.bingo','65536.dev.lab.bingo','04173.dev.lab.bingo','4173.evil.test','4173--main--lab--bingops.dev.lab.bingo','dev.lab.bingo']) assert.equal(routeHost(host),null);
+  for (const host of ['22.dev.lab.bingo','65536.dev.lab.bingo','04173.dev.lab.bingo','4173.evil.test','4173.code.lab.bingo','4173--main--lab--bingops.dev.lab.bingo','dev.lab.bingo']) assert.equal(routeHost(host),null);
 });
 test('requires the configured SSO owner for inventory, files and projects', async t => {
   const f = await fixture(t);
