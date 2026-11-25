@@ -1,4 +1,4 @@
-"""Read-only project image gallery. HTTP loopback, protected externally by Coder."""
+"""Read-only project image gallery. HTTP loopback, protected externally by Nginx and Authentik."""
 
 import argparse
 from http import HTTPStatus
@@ -111,7 +111,7 @@ def workspace_inventory(root):
     for entry in sorted(root.iterdir(), key=lambda p: p.name.casefold()):
         if not entry.is_symlink() and not entry.name.startswith(".") and entry.name.lower() not in EXCLUDED and entry.is_dir():
             projects.append({"name": entry.name, "ports": sorted(p["port"] for p in ports if p["project"] == entry.name)})
-    return {"workspace": {"owner": "bingops", "name": "lab", "agent": "main"}, "checked_at": datetime.now(timezone.utc).isoformat(), "ports": sorted(ports, key=lambda p: (p["project"], p["port"])), "projects": projects[:100], "limited": len(candidates) > 64 or len(projects) > 100}
+    return {"workspace": {"owner": "bingops", "name": "dev", "agent": "vm"}, "checked_at": datetime.now(timezone.utc).isoformat(), "ports": sorted(ports, key=lambda p: (p["project"], p["port"])), "projects": projects[:100], "limited": len(candidates) > 64 or len(projects) > 100}
 
 
 HTML = r'''<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="dark"><link rel="icon" href="data:,"><title>Images du workspace · Lecture seule</title><style>
@@ -220,10 +220,10 @@ def make_handler(root):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--root", type=Path, default=Path("/home/coder/projects"))
+    parser.add_argument("--root", type=Path, default=Path("/home/dev/projects"))
     parser.add_argument("--port", type=int, default=4175)
     args = parser.parse_args()
-    # Only Coder's local agent can reach this listener through the application proxy.
+    # Nginx and the authenticated loopback gateway own external access.
     server = ThreadingHTTPServer(("127.0.0.1", args.port), make_handler(args.root))
     print(f"Read-only image gallery: http://127.0.0.1:{args.port}", flush=True)
     server.serve_forever()

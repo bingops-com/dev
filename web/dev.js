@@ -49,7 +49,7 @@ function render() {
   $('empty').hidden=filtered.length>0 || state.busy && !state.data;
   $('login').hidden=state.authenticated || state.stale; $('clear-filter').hidden=!state.authenticated || !(state.query || state.project || state.starredOnly);
   if (!state.authenticated && state.stale) { $('empty-title').textContent='Détection indisponible'; $('empty-description').textContent='L’agent du workspace ne répond pas. Vos liens d’aperçu restent accessibles.'; }
-  else if (!state.authenticated) { $('empty-title').textContent='Connecter votre workspace'; $('empty-description').textContent='Votre session Coder donne accès aux serveurs et projets privés.'; }
+  else if (!state.authenticated) { $('empty-title').textContent='Connecter votre workspace'; $('empty-description').textContent='Votre session privée donne accès aux serveurs et projets privés.'; }
   else if (ports.length && !filtered.length) { $('empty-title').textContent='Aucun serveur pour ce filtre'; $('empty-description').textContent='Essayez un autre projet, port ou filtre.'; }
   else { $('empty-title').textContent=state.stale ? 'Workspace indisponible' : 'Aucun serveur web en cours'; $('empty-description').textContent=state.stale ? 'Le dernier relevé n’a pas abouti. Réessayez dans quelques instants.' : 'Démarrez un serveur dans un dossier de projet : il apparaîtra automatiquement ici.'; }
   $('filter-all').classList.toggle('selected',!state.starredOnly); $('filter-starred').classList.toggle('selected',state.starredOnly); $('filter-all').setAttribute('aria-pressed',String(!state.starredOnly)); $('filter-starred').setAttribute('aria-pressed',String(state.starredOnly));
@@ -63,7 +63,7 @@ async function refresh() {
   try {
     const response=await fetch('/api/workspace',{credentials:'same-origin',signal:controller.signal,cache:'no-store'});
     if (response.status===401) {
-      state.authenticated=false; state.data=null; state.stale=false; $('notice').hidden=true; $('sync-status').textContent='Session Coder requise'; $('last-checked').textContent='Connexion nécessaire pour la détection.'; return;
+      state.authenticated=false; state.data=null; state.stale=false; $('notice').hidden=true; $('sync-status').textContent='Session privée requise'; $('last-checked').textContent='Connexion nécessaire pour la détection.'; return;
     }
     if (!response.ok) throw new Error('unavailable');
     const data=await response.json(); if(!validInventory(data))throw new Error('invalid');
