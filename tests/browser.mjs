@@ -1,4 +1,4 @@
-// Browser acceptance against the real gateway and a fake authenticated Coder.
+// Browser acceptance against the real gateway and a fake local discovery agent.
 // No account credentials, production API or npm dependencies are used.
 import http from 'node:http';
 import { once } from 'node:events';
@@ -17,12 +17,11 @@ let mode='ready';
 const projects=[{name:'rpg',ports:[4173]},{name:'portal',ports:[5173]},{name:'games',ports:[3000]},{name:'slots',ports:[]}];
 const ports=projects.filter(p=>p.ports.length).map(p=>({port:p.ports[0],project:p.name,runtime:'Node.js',status:'ready',http_status:200}));
 const coder=http.createServer((req,res)=>{
-  if(mode==='login'){res.writeHead(303,{location:'https://coder.lab.bingo/api/v2/applications/auth-redirect'});res.end();return;}
   if(mode==='offline'){res.writeHead(503);res.end();return;}
   res.writeHead(200,{'content-type':'application/json'});res.end(JSON.stringify({workspace:{owner:'bingops',name:'lab',agent:'main'},checked_at:new Date().toISOString(),ports:mode==='empty'?[]:ports,projects,limited:mode==='partial'}));
 });coder.listen(0,'127.0.0.1');await once(coder,'listening');
-const gateway=createGateway({upstream:`http://127.0.0.1:${coder.address().port}`,portal:pathToFileURL(`${directory}/index.html`)});
-gateway.prependListener('request',req=>{req.headers.host='dev.lab.bingo';});gateway.listen(0,'127.0.0.1');await once(gateway,'listening');
+const gateway=createGateway({agentPort:coder.address().port,inventoryCacheMs:0,portal:pathToFileURL(`${directory}/index.html`)});
+gateway.prependListener('request',req=>{req.headers.host='dev.lab.bingo';if(mode!=='login'||req.url!=='/api/workspace')req.headers['x-authentik-username']='bingops';req.headers['x-authentik-username'] = mode==='login' ? '' : 'bingops';});gateway.listen(0,'127.0.0.1');await once(gateway,'listening');
 const browserPath=process.env.CHROMIUM_BIN||['chromium','google-chrome','chromium-browser'].map(name=>spawnSync('which',[name],{encoding:'utf8'}).stdout.trim()).find(Boolean);
 if(!browserPath)throw new Error('Chromium unavailable; set CHROMIUM_BIN');
 const browser=spawn(browserPath,['--headless','--no-sandbox','--disable-dev-shm-usage','--remote-debugging-port=0',`--user-data-dir=${directory}/profile`,'about:blank'],{stdio:['ignore','ignore','pipe']});
