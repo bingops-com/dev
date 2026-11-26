@@ -94,7 +94,7 @@ class GalleryTests(unittest.TestCase):
             self.fail("Expected redirect")
         except HTTPError as error:
             self.assertEqual(error.code, 303)
-            self.assertEqual(error.headers["Location"], "https://dev.lab.bingo/")
+            self.assertEqual(error.headers["Location"], "https://code.lab.bingo/")
 
     def test_process_discovery_uses_socket_ownership_not_args_or_environment(self):
         proc = Path(self.temp.name) / "proc"

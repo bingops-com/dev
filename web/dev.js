@@ -13,7 +13,7 @@ function icon(name) { const svg = document.createElementNS('http://www.w3.org/20
 function node(tag, className, text) { const element = document.createElement(tag); if (className) element.className = className; if (text !== undefined) element.textContent = text; return element; }
 function toast(message) { clearTimeout(toastTimer); $('toast').textContent = message; $('toast').hidden = false; toastTimer = setTimeout(() => $('toast').hidden = true, 2400); }
 async function copy(text) { try { await navigator.clipboard.writeText(text); toast('Adresse copiée'); } catch { toast('Copie indisponible : ouvrez le lien pour récupérer son adresse.'); } }
-function appUrl(port) { return `https://${port}.dev.lab.bingo/`; }
+function appUrl(port) { return `https://${port}.code.lab.bingo/`; }
 function favorite(port) { favorites.has(port) ? favorites.delete(port) : favorites.add(port); try { localStorage.setItem('dev.favorites.v1', JSON.stringify([...favorites])); } catch {} render(); }
 function portCard(port) {
   const card = node('article','port-card'); card.dataset.port = port.port;
@@ -25,7 +25,7 @@ function portCard(port) {
   const pin = node('button','star-button'); pin.type = 'button'; pin.setAttribute('aria-label',`${favorites.has(port.port) ? 'Retirer' : 'Ajouter'} ${port.project} ${port.port} ${favorites.has(port.port) ? 'des' : 'aux'} favoris`); pin.setAttribute('aria-pressed',String(favorites.has(port.port))); pin.append(icon('star')); pin.onclick = () => favorite(port.port);
   head.append(badge,status,pin);
   const body = node('div','port-card-content'); body.append(node('h3','',port.project),node('span','runtime',`${port.runtime} · HTTP`));
-  const address = node('div','port-address'); address.append(node('strong','',String(port.port)),node('span','','.dev.lab.bingo'));
+  const address = node('div','port-address'); address.append(node('strong','',String(port.port)),node('span','','.code.lab.bingo'));
   const actions = node('div','port-card-actions'); const open = node('a','button','Ouvrir'); open.href = appUrl(port.port); open.target = '_blank'; open.rel = 'noopener'; open.setAttribute('aria-label',`Ouvrir ${port.project}, port ${port.port}`); open.append(icon('arrow'));
   const clip = node('button','icon-button'); clip.type='button'; clip.setAttribute('aria-label',`Copier l’adresse du port ${port.port}`); clip.append(icon('copy')); clip.onclick = () => copy(appUrl(port.port)); actions.append(open,clip); body.append(address,actions); card.append(head,body); return card;
 }
@@ -49,7 +49,7 @@ function render() {
   $('empty').hidden=filtered.length>0 || state.busy && !state.data;
   $('login').hidden=state.authenticated || state.stale; $('clear-filter').hidden=!state.authenticated || !(state.query || state.project || state.starredOnly);
   if (!state.authenticated && state.stale) { $('empty-title').textContent='Détection indisponible'; $('empty-description').textContent='L’agent du workspace ne répond pas. Vos liens d’aperçu restent accessibles.'; }
-  else if (!state.authenticated) { $('empty-title').textContent='Connecter votre workspace'; $('empty-description').textContent='Votre session Coder donne accès aux serveurs et projets privés.'; }
+  else if (!state.authenticated) { $('empty-title').textContent='Connecter votre workspace'; $('empty-description').textContent='Votre session privée donne accès aux serveurs et projets privés.'; }
   else if (ports.length && !filtered.length) { $('empty-title').textContent='Aucun serveur pour ce filtre'; $('empty-description').textContent='Essayez un autre projet, port ou filtre.'; }
   else { $('empty-title').textContent=state.stale ? 'Workspace indisponible' : 'Aucun serveur web en cours'; $('empty-description').textContent=state.stale ? 'Le dernier relevé n’a pas abouti. Réessayez dans quelques instants.' : 'Démarrez un serveur dans un dossier de projet : il apparaîtra automatiquement ici.'; }
   $('filter-all').classList.toggle('selected',!state.starredOnly); $('filter-starred').classList.toggle('selected',state.starredOnly); $('filter-all').setAttribute('aria-pressed',String(!state.starredOnly)); $('filter-starred').setAttribute('aria-pressed',String(state.starredOnly));
@@ -63,7 +63,7 @@ async function refresh() {
   try {
     const response=await fetch('/api/workspace',{credentials:'same-origin',signal:controller.signal,cache:'no-store'});
     if (response.status===401) {
-      state.authenticated=false; state.data=null; state.stale=false; $('notice').hidden=true; $('sync-status').textContent='Session Coder requise'; $('last-checked').textContent='Connexion nécessaire pour la détection.'; return;
+      state.authenticated=false; state.data=null; state.stale=false; $('notice').hidden=true; $('sync-status').textContent='Session privée requise'; $('last-checked').textContent='Connexion nécessaire pour la détection.'; return;
     }
     if (!response.ok) throw new Error('unavailable');
     const data=await response.json(); if(!validInventory(data))throw new Error('invalid');
